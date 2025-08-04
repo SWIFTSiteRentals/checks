@@ -1,0 +1,19 @@
+[
+  {
+    "lineLength": 141,
+    "accountHolderName": "romain schonhoff",
+    "accountHolderAddress": "asf",
+    "accountHolderCity": "soulsbyville",
+    "accountHolderState": "ca",
+    "accountHolderZip": "95372",
+    "checkNumber": "100",
+    "date": "8/3/2025",
+    "bankName": "Bank Name, INC",
+    "amount": "0.00",
+    "payTo": "Michael Johnson",
+    "memo": "Rent",
+    "signature": "John Smith",
+    "routingNumber": "022303659",
+    "bankAccountNumber": "000000000000"
+  }
+]

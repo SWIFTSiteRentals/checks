@@ -51,10 +51,30 @@ const loadHistory = () => {
   history.value = JSON.parse(localStorage.getItem('checkList') || '[]')
 }
 
+/*
+
+
 const deleteItem = (index) => {
   history.value.splice(index, 1)
   localStorage.setItem('checkList', JSON.stringify(history.value))
 }
+*/
+const deleteItem = async (index) => {
+  history.value.splice(index, 1)
+  localStorage.setItem('checkList', JSON.stringify(history.value))
+
+  // Persist to server
+  try {
+    await fetch('http://localhost:5174/api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(history.value),
+    })
+  } catch (err) {
+    console.error('❌ Failed to update history file on delete:', err)
+  }
+}
+
 
 const viewItem = (index) => {
     const item = history.value[index]

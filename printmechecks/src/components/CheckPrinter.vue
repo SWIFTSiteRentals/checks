@@ -188,12 +188,33 @@ function printCheck () {
     style.remove();
 }
 
+/*
 function saveToHistory () {
     let checkList = JSON.parse(localStorage.getItem('checkList') || '[]')
     checkList.push(check)
     localStorage.setItem('checkList', JSON.stringify(checkList))
 }
+*/
 
+async function saveToHistory () {
+  let checkList = JSON.parse(localStorage.getItem('checkList') || '[]');
+  checkList.push(check);
+  localStorage.setItem('checkList', JSON.stringify(checkList));
+
+  // Save to server
+  try {
+    await fetch('http://localhost:5174/api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checkList),
+    });
+  } catch (err) {
+    console.error('❌ Failed to save history to server:', err);
+  }
+}
+
+
+/*
 function genNewCheck () {
     let checkList = JSON.parse(localStorage.getItem('checkList') || '[]')
     let recentCheck = checkList[checkList.length - 1]
@@ -214,10 +235,50 @@ function genNewCheck () {
     check.bankAccountNumber = recentCheck?.bankAccountNumber || '000000000000'
     return check
 }
+*/
 
-const check = reactive(
-    genNewCheck()
-)
+async function genNewCheck () {
+  let checkList = [];
+
+  try {
+    const res = await fetch('http://localhost:5174/api/history');
+    checkList = await res.json();
+    localStorage.setItem('checkList', JSON.stringify(checkList));
+  } catch (err) {
+    console.warn('⚠️ Failed to load history from server. Using localStorage.');
+    checkList = JSON.parse(localStorage.getItem('checkList') || '[]');
+  }
+
+  let recentCheck = checkList[checkList.length - 1];
+  let check = {
+    accountHolderName: recentCheck?.accountHolderName || 'John Smith',
+    accountHolderAddress: recentCheck?.accountHolderAddress || '123 Cherry Tree Lane',
+    accountHolderCity: recentCheck?.accountHolderCity || 'New York',
+    accountHolderState: recentCheck?.accountHolderState || 'NY',
+    accountHolderZip: recentCheck?.accountHolderZip || '10001',
+    checkNumber: recentCheck?.checkNumber ? (parseInt(recentCheck?.checkNumber) + 1).toString() : '100',
+    date: new Date().toLocaleDateString(),
+    bankName: recentCheck?.bankName || 'Bank Name, INC',
+    amount: '0.00',
+    payTo: 'Michael Johnson',
+    memo: recentCheck?.memo || 'Rent',
+    signature: recentCheck?.signature || 'John Smith',
+    routingNumber: recentCheck?.routingNumber || '022303659',
+    bankAccountNumber: recentCheck?.bankAccountNumber || '000000000000',
+  };
+
+  return check;
+}
+
+
+
+const check = reactive({} as any)
+
+onMounted(async () => {
+  const generatedCheck = await genNewCheck()
+  Object.assign(check, generatedCheck)
+})
+
 
 const line = ref(null)
 
